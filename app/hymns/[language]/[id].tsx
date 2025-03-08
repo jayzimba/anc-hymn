@@ -1,11 +1,13 @@
-import { useState, useRef } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, SafeAreaView, Animated, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, SafeAreaView, Animated, NativeSyntheticEvent, NativeScrollEvent, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '../../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getHymnById, getHymnContent, getHymnsForLanguage } from '../../../data/hymnData';
 import { useTheme } from '../../../context/ThemeContext';
+import { addFavoriteHymn, removeFavoriteHymn, isHymnFavorite } from '../../../utils/database';
+import * as Haptics from 'expo-haptics';
 
 export default function HymnContent() {
   const { language, id } = useLocalSearchParams();
@@ -14,11 +16,26 @@ export default function HymnContent() {
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimeout = useRef<NodeJS.Timeout>();
   const { isDarkMode, toggleTheme, theme } = useTheme();
+  const favoriteAnimationValue = useRef(new Animated.Value(1)).current;
+  const themeAnimationValue = useRef(new Animated.Value(1)).current;
   const currentId = Number(id);
   const hymn = getHymnById(language as string, currentId);
   const content = getHymnContent(language as string, currentId);
   const allHymns = getHymnsForLanguage(language as string);
   const currentIndex = allHymns.findIndex((h: { id: number }) => h.id === currentId);
+
+  useEffect(() => {
+    checkFavoriteStatus();
+  }, [language, currentId]);
+
+  const checkFavoriteStatus = async () => {
+    try {
+      const favorite = await isHymnFavorite(language as string, currentId);
+      setIsFavorite(favorite);
+    } catch (error) {
+      console.error('Error checking favorite status:', error);
+    }
+  };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     setIsScrolling(true);
@@ -31,12 +48,64 @@ export default function HymnContent() {
     // Set new timeout
     scrollTimeout.current = setTimeout(() => {
       setIsScrolling(false);
-    }, 1500); // Buttons become visible again after 1.5 seconds of no scrolling
+    }, 1800); // Buttons become visible again after 1.5 seconds of no scrolling
   };
 
-  const handleFavoritePress = () => {
-    setIsFavorite(!isFavorite);
-    // TODO: Implement actual favorite storage logic
+  const animateButton = (animatedValue: Animated.Value) => {
+    Animated.sequence([
+      Animated.timing(animatedValue, {
+        toValue: 0.8,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.spring(animatedValue, {
+        toValue: 1,
+        friction: 3,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handleThemePress = async () => {
+    try {
+      animateButton(themeAnimationValue);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      toggleTheme();
+    } catch (error) {
+      console.error('Error toggling theme:', error);
+      toggleTheme(); // Fallback if haptics fail
+    }
+  };
+
+  const handleFavoritePress = async () => {
+    try {
+      animateButton(favoriteAnimationValue);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      
+      if (isFavorite) {
+        await removeFavoriteHymn(language as string, currentId);
+      } else {
+        await addFavoriteHymn(language as string, {
+          id: currentId,
+          title: hymn.title,
+          number: hymn.number,
+        });
+      }
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+
+  const handleLongPress = async () => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      router.push(`/hymns/${language}/favorites`);
+    } catch (error) {
+      // Fallback if haptics not available
+      router.push(`/hymns/${language}/favorites`);
+    }
   };
 
   const handleNavigate = (direction: 'prev' | 'next') => {
@@ -72,6 +141,7 @@ export default function HymnContent() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
       <View style={[styles.header, { borderBottomColor: theme.colors.primary + '20' }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -128,38 +198,44 @@ export default function HymnContent() {
         styles.floatingButtonsContainer,
         isScrolling && styles.floatingButtonsTransparent
       ]}>
-        <TouchableOpacity
-          style={[
-            styles.floatingButton,
-            isDarkMode && styles.buttonActive,
-            isScrolling && styles.buttonTransparent
-          ]}
-          onPress={toggleTheme}
-          activeOpacity={0.8}
-        >
-          <Ionicons 
-            name={isDarkMode ? "sunny" : "moon"}
-            size={24}
-            color={isDarkMode ? theme.colors.background : theme.colors.primary}
-            style={isScrolling && { opacity: 0.3 }}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.floatingButton,
-            isFavorite && styles.buttonActive,
-            isScrolling && styles.buttonTransparent
-          ]}
-          onPress={() => setIsFavorite(!isFavorite)}
-          activeOpacity={0.8}
-        >
-          <Ionicons 
-            name={isFavorite ? "heart" : "heart-outline"}
-            size={24}
-            color={isFavorite ? theme.colors.background : theme.colors.primary}
-            style={isScrolling && { opacity: 0.3 }}
-          />
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: themeAnimationValue }] }}>
+          <TouchableOpacity
+            style={[
+              styles.floatingButton,
+              isDarkMode && styles.buttonActive,
+              isScrolling && styles.buttonTransparent
+            ]}
+            onPress={handleThemePress}
+            activeOpacity={1}
+          >
+            <Ionicons 
+              name={isDarkMode ? "sunny" : "moon"}
+              size={24}
+              color={isDarkMode ? theme.colors.background : theme.colors.primary}
+              style={isScrolling && { opacity: 0.3 }}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View style={{ transform: [{ scale: favoriteAnimationValue }] }}>
+          <TouchableOpacity
+            style={[
+              styles.floatingButton,
+              isFavorite && styles.buttonActive,
+              isScrolling && styles.buttonTransparent
+            ]}
+            onPress={handleFavoritePress}
+            onLongPress={handleLongPress}
+            delayLongPress={500}
+            activeOpacity={1}
+          >
+            <Ionicons 
+              name={isFavorite ? "heart" : "heart-outline"}
+              size={24}
+              color={isFavorite ? theme.colors.background : theme.colors.primary}
+              style={isScrolling && { opacity: 0.3 }}
+            />
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </SafeAreaView>
   );
@@ -252,7 +328,7 @@ const styles = StyleSheet.create({
   floatingButtonsContainer: {
     position: 'absolute',
     right: theme.spacing.sm,
-    bottom: 130,
+    bottom: Platform.OS === 'ios' ? 130 : 110,
     gap: 10,
   },
   floatingButtonsTransparent: {

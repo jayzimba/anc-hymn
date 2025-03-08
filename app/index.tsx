@@ -4,6 +4,8 @@ import { theme } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../context/ThemeContext';
+import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - theme.spacing.lg * 3) / 2;
@@ -33,7 +35,7 @@ const languages = [
   },
   {
     id: 'tumbaka',
-    name: 'TUMBAKA',
+    name: 'TUMBUKA',
     description: 'Hymns in Tumbuka',
     isSupported: false,
     icon: 'book',
@@ -42,13 +44,20 @@ const languages = [
 
 export default function LanguageSelection() {
   const router = useRouter();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleLanguageSelect = (languageId: string) => {
     router.push(`/hymns/${languageId}`);
   };
 
+  const handleThemeToggle = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    toggleTheme();
+  };
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.primary }]}>
+      <StatusBar barStyle="light-content" />
       <LinearGradient
         colors={[
           theme.colors.primary,
@@ -58,8 +67,20 @@ export default function LanguageSelection() {
         style={styles.background}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>ANC Hymn Book</Text>
-          <Text style={styles.subtitle}>Select Language</Text>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>ANC Hymn Book</Text>
+            <Text style={styles.subtitle}>Select Language</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.themeToggle}
+            onPress={handleThemeToggle}
+          >
+            <Ionicons 
+              name={isDarkMode ? "sunny" : "moon"} 
+              size={24} 
+              color={theme.colors.background} 
+            />
+          </TouchableOpacity>
         </View>
 
         <ScrollView 
@@ -128,7 +149,7 @@ export default function LanguageSelection() {
           </View>
         </ScrollView>
       </LinearGradient>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -146,7 +167,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     padding: theme.spacing.lg,
     paddingTop: theme.spacing.xl,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerContent: {
+    alignItems: 'flex-start',
   },
   title: {
     fontSize: 32,
@@ -250,5 +276,15 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.backgroundDark,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  themeToggle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
 }); 

@@ -1,54 +1,66 @@
-import { useState } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useState, useCallback, useEffect } from 'react';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, SafeAreaView, RefreshControl, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '../../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { getHymnById } from '../../../data/hymnData';
+import { getFavoriteHymns, FavoriteHymn } from '../../../utils/database';
+import { useTheme } from '../../../context/ThemeContext';
+import { useIsFocused } from '@react-navigation/native';
 
-// TODO: Implement actual favorite storage and retrieval
-const getFavoriteHymns = (language: string) => {
-  // This is a placeholder. Replace with actual implementation using AsyncStorage or similar
-  return [];
+const getLanguageDisplay = (language: string): string => {
+  const languages = {
+    cinamwanga: 'Namwanga',
+    bemba: 'Bemba',
+    cewa: 'Cewa',
+    tumbaka: 'Tumbuka'
+  };
+  return languages[language as keyof typeof languages] || language;
 };
 
 export default function FavoriteHymns() {
   const { language } = useLocalSearchParams();
   const router = useRouter();
-  const [favoriteHymns, setFavoriteHymns] = useState(getFavoriteHymns(language as string));
+  const { isDarkMode } = useTheme();
+  const [favorites, setFavorites] = useState<FavoriteHymn[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const isFocused = useIsFocused();
 
-  const renderHymnItem = ({ item, index }: { item: { id: number; title: string; number: string }, index: number }) => (
-    <Animated.View
-      entering={FadeInDown.delay(index * 50).duration(500)}
-    >
-      <TouchableOpacity
-        style={styles.hymnItem}
-        onPress={() => router.push(`/hymns/${language}/${item.id}`)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.hymnNumberContainer}>
-          <View style={styles.hymnNumber}>
-            <Text style={styles.hymnNumberText}>{item.number}</Text>
-          </View>
-          <View style={styles.hymnDivider} />
-        </View>
-        <View style={styles.hymnContent}>
-          <Text style={styles.hymnTitle}>{item.title}</Text>
-        </View>
-        <View style={styles.arrowContainer}>
-          <Ionicons 
-            name="chevron-forward" 
-            size={20} 
-            color={theme.colors.primary} 
-          />
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
-  );
+  const loadFavorites = async () => {
+    try {
+      setRefreshing(true);
+      const favHymns = await getFavoriteHymns(language as string);
+      setFavorites(favHymns);
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    await loadFavorites();
+  }, [language]);
+
+  useEffect(() => {
+    if (isFocused) {
+      loadFavorites();
+    }
+  }, [isFocused, language]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[
+      styles.container,
+      { backgroundColor: isDarkMode ? '#000000' : theme.colors.background }
+    ]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
+      <View style={[
+        styles.header,
+        { 
+          borderBottomColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.primary + '20',
+          backgroundColor: isDarkMode ? '#000000' : theme.colors.background
+        }
+      ]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
@@ -60,28 +72,122 @@ export default function FavoriteHymns() {
           />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>Favorite Hymns</Text>
-          <Text style={styles.subtitle}>
-            {favoriteHymns.length} {favoriteHymns.length === 1 ? 'hymn' : 'hymns'}
+          <Text style={[
+            styles.title,
+            { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
+          ]}>Favorite Hymns</Text>
+          <Text style={[
+            styles.subtitle,
+            { color: isDarkMode ? '#FFFFFF80' : theme.colors.primary }
+          ]}>
+            {favorites.length} {favorites.length === 1 ? 'hymn' : 'hymns'} from all languages
           </Text>
         </View>
       </View>
 
       <FlatList
-        data={favoriteHymns}
-        renderItem={renderHymnItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContainer}
+        data={favorites}
+        renderItem={({ item, index }) => (
+          <Animated.View
+            entering={FadeInDown.delay(index * 50).duration(500)}
+          >
+            <TouchableOpacity
+              style={[
+                styles.hymnItem,
+                { 
+                  backgroundColor: isDarkMode ? '#111111' : theme.colors.background,
+                  borderColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.primary + '20',
+                  shadowColor: isDarkMode ? '#000000' : theme.colors.primary
+                }
+              ]}
+              onPress={() => router.push(`/hymns/${item.language}/${item.hymnId}`)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.hymnNumberContainer}>
+                <View style={[
+                  styles.hymnNumber,
+                  { backgroundColor: isDarkMode ? '#FFFFFF20' : theme.colors.primary + '15' }
+                ]}>
+                  <Text style={[
+                    styles.hymnNumberText,
+                    { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
+                  ]}>{item.number}</Text>
+                </View>
+                <View style={[
+                  styles.hymnDivider,
+                  { backgroundColor: isDarkMode ? '#FFFFFF40' : theme.colors.primary + '30' }
+                ]} />
+              </View>
+              <View style={styles.hymnContent}>
+                <Text style={[
+                  styles.hymnTitle,
+                  { color: isDarkMode ? '#FFFFFF' : theme.colors.text }
+                ]}>{item.title}</Text>
+                <View style={styles.hymnMetadata}>
+                  <View style={[
+                    styles.languageTag,
+                    { backgroundColor: isDarkMode ? '#111111' : theme.colors.primary + '15' }
+                  ]}>
+                    <Text style={[
+                      styles.languageText,
+                      { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
+                    ]}>
+                      {getLanguageDisplay(item.language)}
+                    </Text>
+                  </View>
+                  <Text style={[
+                    styles.dateAdded,
+                    { color: isDarkMode ? '#FFFFFF80' : theme.colors.text + '80' }
+                  ]}>
+                    Added {new Date(item.dateAdded || '').toLocaleDateString()}
+                  </Text>
+                </View>
+              </View>
+              <View style={[
+                styles.arrowContainer,
+                { backgroundColor: isDarkMode ? '#FFFFFF20' : theme.colors.primary + '15' }
+              ]}>
+                <Ionicons 
+                  name="chevron-forward" 
+                  size={20} 
+                  color={isDarkMode ? '#FFFFFF' : theme.colors.primary} 
+                />
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+        keyExtractor={(item) => `${item.language}-${item.hymnId}`}
+        contentContainerStyle={[
+          styles.listContainer,
+          { backgroundColor: isDarkMode ? '#000000' : theme.colors.background }
+        ]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+          />
+        }
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
+          <View style={[
+            styles.emptyContainer,
+            { backgroundColor: isDarkMode ? '#000000' : theme.colors.background }
+          ]}>
             <Ionicons 
               name="heart-outline" 
               size={64} 
               color={theme.colors.primary} 
             />
-            <Text style={styles.emptyTitle}>No Favorites Yet</Text>
-            <Text style={styles.emptyText}>
+            <Text style={[
+              styles.emptyTitle,
+              { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
+            ]}>No Favorites Yet</Text>
+            <Text style={[
+              styles.emptyText,
+              { color: isDarkMode ? '#FFFFFF' : theme.colors.text }
+            ]}>
               Add hymns to your favorites by tapping the heart icon while viewing them.
             </Text>
           </View>
@@ -94,7 +200,6 @@ export default function FavoriteHymns() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -102,7 +207,6 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     paddingTop: theme.spacing.xl,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.primary + '20',
   },
   backButton: {
     padding: theme.spacing.sm,
@@ -113,12 +217,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    color: theme.colors.primary,
     fontWeight: '700',
   },
   subtitle: {
     fontSize: 16,
-    color: theme.colors.primary,
     opacity: 0.8,
   },
   listContainer: {
@@ -127,14 +229,11 @@ const styles = StyleSheet.create({
   hymnItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.lg,
     marginBottom: theme.spacing.sm,
     borderWidth: 1,
-    borderColor: theme.colors.primary + '20',
     elevation: 2,
-    shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -145,7 +244,6 @@ const styles = StyleSheet.create({
     marginRight: theme.spacing.md,
   },
   hymnNumber: {
-    backgroundColor: theme.colors.primary + '15',
     width: 36,
     height: 36,
     borderRadius: theme.borderRadius.md,
@@ -153,14 +251,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   hymnNumberText: {
-    color: theme.colors.primary,
     fontSize: 14,
     fontWeight: '700',
   },
   hymnDivider: {
     width: 1,
     height: 24,
-    backgroundColor: theme.colors.primary + '30',
     marginLeft: theme.spacing.md,
   },
   hymnContent: {
@@ -168,14 +264,30 @@ const styles = StyleSheet.create({
   },
   hymnTitle: {
     fontSize: 15,
-    color: theme.colors.text,
     fontWeight: '500',
+  },
+  hymnMetadata: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: theme.spacing.xs,
+    gap: theme.spacing.sm,
+  },
+  languageTag: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 2,
+    borderRadius: theme.borderRadius.sm,
+  },
+  languageText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  dateAdded: {
+    fontSize: 12,
   },
   arrowContainer: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: theme.colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: theme.spacing.sm,
@@ -185,17 +297,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: theme.spacing.xl * 2,
+    marginTop: theme.spacing.xl,
   },
   emptyTitle: {
     fontSize: 24,
-    color: theme.colors.primary,
     fontWeight: '700',
     marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.md,
   },
   emptyText: {
     fontSize: 16,
-    color: theme.colors.text,
     textAlign: 'center',
     opacity: 0.8,
     lineHeight: 24,

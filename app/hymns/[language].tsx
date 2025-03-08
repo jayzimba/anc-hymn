@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
-import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, Dimensions, SafeAreaView, StatusBar, RefreshControl } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getHymnsForLanguage, searchHymns } from '../../data/hymnData';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -14,13 +15,24 @@ const SUPPORTED_LANGUAGES = ['cinamwanga', 'bembe', 'cewa', 'tumbaka'];
 export default function HymnsList() {
   const { language } = useLocalSearchParams();
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredHymns, setFilteredHymns] = useState(getHymnsForLanguage(language as string));
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleSearch = useCallback((text: string) => {
     setSearchQuery(text);
     const filtered = searchHymns(language as string, text);
     setFilteredHymns(filtered);
+  }, [language]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    // Refresh the hymns list
+    const hymns = getHymnsForLanguage(language as string);
+    setFilteredHymns(hymns);
+    setSearchQuery('');
+    setRefreshing(false);
   }, [language]);
 
   const handleHymnSelect = (hymnId: number) => {
@@ -32,24 +44,45 @@ export default function HymnsList() {
       entering={FadeInDown.delay(index * 50).duration(500)}
     >
       <TouchableOpacity
-        style={styles.hymnItem}
+        style={[
+          styles.hymnItem,
+          { 
+            backgroundColor: isDarkMode ? '#111111' : theme.colors.background,
+            borderColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.primary + '20',
+          }
+        ]}
         onPress={() => handleHymnSelect(item.id)}
         activeOpacity={0.7}
       >
         <View style={styles.hymnNumberContainer}>
-          <View style={styles.hymnNumber}>
-            <Text style={styles.hymnNumberText}>{item.number}</Text>
+          <View style={[
+            styles.hymnNumber,
+            { backgroundColor: isDarkMode ? '#FFFFFF20' : theme.colors.primary + '15' }
+          ]}>
+            <Text style={[
+              styles.hymnNumberText,
+              { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
+            ]}>{item.number}</Text>
           </View>
-          <View style={styles.hymnDivider} />
+          <View style={[
+            styles.hymnDivider,
+            { backgroundColor: isDarkMode ? '#FFFFFF40' : theme.colors.primary + '30' }
+          ]} />
         </View>
         <View style={styles.hymnContent}>
-          <Text style={styles.hymnTitle}>{item.title}</Text>
+          <Text style={[
+            styles.hymnTitle,
+            { color: isDarkMode ? '#FFFFFF' : theme.colors.text }
+          ]}>{item.title}</Text>
         </View>
-        <View style={styles.arrowContainer}>
+        <View style={[
+          styles.arrowContainer,
+          { backgroundColor: isDarkMode ? '#FFFFFF20' : theme.colors.primary + '15' }
+        ]}>
           <Ionicons 
             name="chevron-forward" 
             size={20} 
-            color={theme.colors.textLight} 
+            color={isDarkMode ? '#FFFFFF' : theme.colors.primary} 
           />
         </View>
       </TouchableOpacity>
@@ -61,22 +94,38 @@ export default function HymnsList() {
 
   if (!isSupported) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? '#000000' : theme.colors.background }
+      ]}>
+        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
         <View style={styles.comingSoonContainer}>
           <Ionicons 
             name="time-outline" 
             size={64} 
-            color={theme.colors.primary} 
+            color={isDarkMode ? theme.colors.primary : theme.colors.primary} 
           />
-          <Text style={styles.comingSoonTitle}>Coming Soon</Text>
-          <Text style={styles.comingSoonText}>
+          <Text style={[
+            styles.comingSoonTitle,
+            { color: isDarkMode ? theme.colors.primary : theme.colors.primary }
+          ]}>Coming Soon</Text>
+          <Text style={[
+            styles.comingSoonText,
+            { color: isDarkMode ? theme.colors.primary : theme.colors.text }
+          ]}>
             {languageName.charAt(0).toUpperCase() + languageName.slice(1)} hymns are being prepared.
           </Text>
           <TouchableOpacity
-            style={styles.backButton}
+            style={[
+              styles.backButton,
+              { backgroundColor: theme.colors.primary + (isDarkMode ? '30' : '15') }
+            ]}
             onPress={() => router.back()}
           >
-            <Text style={styles.backButtonText}>Go Back</Text>
+            <Text style={[
+              styles.backButtonText,
+              { color: isDarkMode ? theme.colors.primary : theme.colors.primary }
+            ]}>Go Back</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -84,28 +133,56 @@ export default function HymnsList() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>
+    <SafeAreaView style={[
+      styles.container,
+      { backgroundColor: isDarkMode ? '#000000' : theme.colors.background }
+    ]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
+      <View style={[
+        styles.header,
+        { 
+          backgroundColor: isDarkMode ? '#000000' : theme.colors.background,
+          borderBottomColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.primary + '20'
+        }
+      ]}>
+        <Text style={[
+          styles.title,
+          { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
+        ]}>
           {languageName.charAt(0).toUpperCase() + languageName.slice(1)} Hymns
         </Text>
-        <Text style={styles.subtitle}>ISONTELO LYA LWIMBO</Text>
+        <Text style={[
+          styles.subtitle,
+          { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
+        ]}>ISONTELO LYA LWIMBO</Text>
       </View>
 
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
+      <View style={[
+        styles.searchContainer,
+        { backgroundColor: isDarkMode ? '#000000' : theme.colors.background }
+      ]}>
+        <View style={[
+          styles.searchInputContainer,
+          { 
+            backgroundColor: isDarkMode ? '#111111' : theme.colors.background,
+            borderColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.primary + '30'
+          }
+        ]}>
           <Ionicons 
             name="search" 
             size={20} 
-            color={theme.colors.primary} 
+            color={isDarkMode ? theme.colors.primary : theme.colors.primary} 
             style={styles.searchIcon}
           />
           <TextInput
-            style={styles.searchInput}
+            style={[
+              styles.searchInput,
+              { color: isDarkMode ? '#FFFFFF' : theme.colors.text }
+            ]}
             placeholder="Search by number or title..."
             value={searchQuery}
             onChangeText={handleSearch}
-            placeholderTextColor={theme.colors.text + '80'}
+            placeholderTextColor={isDarkMode ? '#FFFFFF80' : theme.colors.text + '80'}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity
@@ -115,13 +192,19 @@ export default function HymnsList() {
               <Ionicons 
                 name="close-circle" 
                 size={20} 
-                color={theme.colors.primary} 
+                color={isDarkMode ? theme.colors.primary : theme.colors.primary} 
               />
             </TouchableOpacity>
           )}
         </View>
         <TouchableOpacity
-          style={styles.favoritesButton}
+          style={[
+            styles.favoritesButton,
+            { 
+              backgroundColor: isDarkMode ? '#111111' : theme.colors.background,
+              borderColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.primary + '30'
+            }
+          ]}
           onPress={() => router.push(`/hymns/${language}/favorites`)}
           activeOpacity={0.7}
         >
@@ -137,16 +220,33 @@ export default function HymnsList() {
         data={filteredHymns}
         renderItem={renderHymnItem}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={[
+          styles.listContainer,
+          { backgroundColor: isDarkMode ? '#000000' : theme.colors.background }
+        ]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={isDarkMode ? theme.colors.primary : theme.colors.primary}
+            colors={[isDarkMode ? theme.colors.primary : theme.colors.primary]}
+          />
+        }
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
+          <View style={[
+            styles.emptyContainer,
+            { backgroundColor: isDarkMode ? '#000000' : theme.colors.background }
+          ]}>
             <Ionicons 
               name="search-outline" 
               size={48} 
               color={theme.colors.primary} 
             />
-            <Text style={styles.emptyText}>No hymns found</Text>
+            <Text style={[
+              styles.emptyText,
+              { color: isDarkMode ? '#FFFFFF' : theme.colors.text }
+            ]}>No hymns found</Text>
           </View>
         }
       />
