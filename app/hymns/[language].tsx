@@ -103,7 +103,7 @@ export default function HymnsList() {
           <Ionicons 
             name="time-outline" 
             size={64} 
-            color={isDarkMode ? theme.colors.primary : theme.colors.primary} 
+            color={isDarkMode ? theme.colors.accent : theme.colors.primary} 
           />
           <Text style={[
             styles.comingSoonTitle,
@@ -145,16 +145,33 @@ export default function HymnsList() {
           borderBottomColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.primary + '20'
         }
       ]}>
-        <Text style={[
-          styles.title,
-          { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
-        ]}>
-          {languageName.charAt(0).toUpperCase() + languageName.slice(1)} Hymns
-        </Text>
-        <Text style={[
-          styles.subtitle,
-          { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
-        ]}>ISONTELO LYA LWIMBO</Text>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity
+            style={[
+              styles.backButton,
+              { backgroundColor: isDarkMode ? '#111111' : theme.colors.background }
+            ]}
+            onPress={() => router.back()}
+          >
+            <Ionicons 
+              name="arrow-back" 
+              size={24} 
+              color={theme.colors.accent} 
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.headerContent}>
+          <Text style={[
+            styles.title,
+            { color: isDarkMode ? '#FFFFFF' : theme.colors.primary }
+          ]}>
+            {languageName.charAt(0).toUpperCase() + languageName.slice(1)} Hymns
+          </Text>
+          <Text style={[
+            styles.subtitle,
+            { color: isDarkMode ? '#FFFFFF80' : theme.colors.primary }
+          ]}>ISONTELO LYA LWIMBO</Text>
+        </View>
       </View>
 
       <View style={[
@@ -263,9 +280,30 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     padding: theme.spacing.lg,
     paddingTop: theme.spacing.xl,
-    alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.primary + '20',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerLeft: {
+    marginRight: theme.spacing.md,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.primary + '30',
+    elevation: 2,
+    shadowColor: theme.colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  headerContent: {
+    flex: 1,
   },
   title: {
     fontSize: 28,
@@ -416,14 +454,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.9,
     marginBottom: theme.spacing.xl,
-  },
-  backButton: {
-    backgroundColor: theme.colors.primary + '15',
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.primary + '30',
   },
   backButtonText: {
     color: theme.colors.primary,
