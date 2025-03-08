@@ -14,10 +14,13 @@ export default function HymnContent() {
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [fontSize, setFontSize] = useState(18);
   const scrollTimeout = useRef<NodeJS.Timeout>();
   const { isDarkMode, toggleTheme, theme } = useTheme();
   const favoriteAnimationValue = useRef(new Animated.Value(1)).current;
   const themeAnimationValue = useRef(new Animated.Value(1)).current;
+  const zoomInAnimationValue = useRef(new Animated.Value(1)).current;
+  const zoomOutAnimationValue = useRef(new Animated.Value(1)).current;
   const currentId = Number(id);
   const hymn = getHymnById(language as string, currentId);
   const content = getHymnContent(language as string, currentId);
@@ -115,6 +118,25 @@ export default function HymnContent() {
     }
   };
 
+  const handleZoom = async (type: 'in' | 'out') => {
+    try {
+      const animationValue = type === 'in' ? zoomInAnimationValue : zoomOutAnimationValue;
+      animateButton(animationValue);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
+      setFontSize(current => {
+        if (type === 'in' && current < 32) {
+          return current + 2;
+        } else if (type === 'out' && current > 14) {
+          return current - 2;
+        }
+        return current;
+      });
+    } catch (error) {
+      console.error('Error adjusting font size:', error);
+    }
+  };
+
   if (!hymn) {
     return (
       <SafeAreaView style={styles.container}>
@@ -165,7 +187,13 @@ export default function HymnContent() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        <Text style={[styles.content, { color: theme.colors.text }]}>{content}</Text>
+        <Text style={[
+          styles.content, 
+          { 
+            color: theme.colors.text,
+            fontSize: fontSize 
+          }
+        ]}>{content}</Text>
       </ScrollView>
 
       <View style={[styles.navigationContainer, { borderTopColor: theme.colors.primary + '20' }]}>
@@ -198,6 +226,46 @@ export default function HymnContent() {
         styles.floatingButtonsContainer,
         isScrolling && styles.floatingButtonsTransparent
       ]}>
+        <Animated.View style={{ transform: [{ scale: zoomInAnimationValue }] }}>
+          <TouchableOpacity
+            style={[
+              styles.floatingButton,
+              fontSize >= 32 && styles.buttonDisabled,
+              isScrolling && styles.buttonTransparent
+            ]}
+            onPress={() => handleZoom('in')}
+            disabled={fontSize >= 32}
+            activeOpacity={1}
+          >
+            <Ionicons 
+              name="add-circle-outline"
+              size={24}
+              color={fontSize >= 32 ? theme.colors.primary + '40' : theme.colors.primary}
+              style={isScrolling && { opacity: 0.3 }}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+
+        <Animated.View style={{ transform: [{ scale: zoomOutAnimationValue }] }}>
+          <TouchableOpacity
+            style={[
+              styles.floatingButton,
+              fontSize <= 14 && styles.buttonDisabled,
+              isScrolling && styles.buttonTransparent
+            ]}
+            onPress={() => handleZoom('out')}
+            disabled={fontSize <= 14}
+            activeOpacity={1}
+          >
+            <Ionicons 
+              name="remove-circle-outline"
+              size={24}
+              color={fontSize <= 14 ? theme.colors.primary + '40' : theme.colors.primary}
+              style={isScrolling && { opacity: 0.3 }}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+
         <Animated.View style={{ transform: [{ scale: themeAnimationValue }] }}>
           <TouchableOpacity
             style={[
@@ -216,6 +284,7 @@ export default function HymnContent() {
             />
           </TouchableOpacity>
         </Animated.View>
+
         <Animated.View style={{ transform: [{ scale: favoriteAnimationValue }] }}>
           <TouchableOpacity
             style={[
@@ -357,5 +426,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     elevation: 0,
     shadowOpacity: 0,
+  },
+  buttonDisabled: {
+    opacity: 0.4,
   },
 }); 

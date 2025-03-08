@@ -68,7 +68,7 @@ export default function FavoriteHymns() {
           <Ionicons 
             name="arrow-back" 
             size={24} 
-            color={theme.colors.primary} 
+            color={theme.colors.accent} 
           />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
@@ -126,7 +126,7 @@ export default function FavoriteHymns() {
                 <View style={styles.hymnMetadata}>
                   <View style={[
                     styles.languageTag,
-                    { backgroundColor: isDarkMode ? '#111111' : theme.colors.primary + '15' }
+                    { backgroundColor: isDarkMode ? theme.colors.accent : theme.colors.primary + '15' }
                   ]}>
                     <Text style={[
                       styles.languageText,
@@ -178,7 +178,7 @@ export default function FavoriteHymns() {
             <Ionicons 
               name="heart-outline" 
               size={64} 
-              color={theme.colors.primary} 
+              color={theme.colors.accent} 
             />
             <Text style={[
               styles.emptyTitle,

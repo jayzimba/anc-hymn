@@ -6,6 +6,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import * as Haptics from 'expo-haptics';
+import Constants from 'expo-constants';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - theme.spacing.lg * 3) / 2;
@@ -88,64 +89,70 @@ export default function LanguageSelection() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.languageGrid}>
-            {languages.map((lang, index) => (
-              <Animated.View
-                key={lang.id}
-                entering={FadeInDown.delay(index * 100).duration(500)}
-              >
-                <TouchableOpacity
-                  style={[
-                    styles.languageCard,
-                    !lang.isSupported && styles.unsupportedCard
-                  ]}
-                  onPress={() => handleLanguageSelect(lang.id)}
-                  activeOpacity={0.7}
-                  disabled={!lang.isSupported}
+          <View style={styles.contentContainer}>
+            <View style={styles.languageGrid}>
+              {languages.map((lang, index) => (
+                <Animated.View
+                  key={lang.id}
+                  entering={FadeInDown.delay(index * 100).duration(500)}
                 >
-                  <View style={styles.cardHeader}>
-                    <View style={styles.iconContainer}>
-                      <Ionicons 
-                        name={lang.icon as any} 
-                        size={24} 
-                        color={lang.isSupported ? theme.colors.primary : theme.colors.textLight + '80'} 
-                      />
-                    </View>
-                    <View style={styles.arrowContainer}>
-                      <Ionicons 
-                        name={lang.isSupported ? "chevron-forward" : "lock-closed"} 
-                        size={20} 
-                        color={lang.isSupported ? theme.colors.primary : theme.colors.textLight + '80'} 
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.languageContent}>
-                    <Text style={[
-                      styles.languageName,
-                      !lang.isSupported && styles.unsupportedText
-                    ]}>
-                      {lang.name}
-                    </Text>
-                    <Text style={[
-                      styles.languageDescription,
-                      !lang.isSupported && styles.unsupportedText
-                    ]}>
-                      {lang.description}
-                    </Text>
-                    {!lang.isSupported && (
-                      <View style={styles.comingSoonBadge}>
+                  <TouchableOpacity
+                    style={[
+                      styles.languageCard,
+                      !lang.isSupported && styles.unsupportedCard
+                    ]}
+                    onPress={() => handleLanguageSelect(lang.id)}
+                    activeOpacity={0.7}
+                    disabled={!lang.isSupported}
+                  >
+                    <View style={styles.cardHeader}>
+                      <View style={styles.iconContainer}>
                         <Ionicons 
-                          name="time-outline" 
-                          size={12} 
-                          color={theme.colors.background} 
+                          name={lang.icon as any} 
+                          size={24} 
+                          color={lang.isSupported ? theme.colors.primary : theme.colors.textLight + '80'} 
                         />
-                        <Text style={styles.comingSoonText}>Coming Soon</Text>
                       </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              </Animated.View>
-            ))}
+                      <View style={styles.arrowContainer}>
+                        <Ionicons 
+                          name={lang.isSupported ? "chevron-forward" : "lock-closed"} 
+                          size={20} 
+                          color={lang.isSupported ? theme.colors.primary : theme.colors.textLight + '80'} 
+                        />
+                      </View>
+                    </View>
+                    <View style={styles.languageContent}>
+                      <Text style={[
+                        styles.languageName,
+                        !lang.isSupported && styles.unsupportedText
+                      ]}>
+                        {lang.name}
+                      </Text>
+                      <Text style={[
+                        styles.languageDescription,
+                        !lang.isSupported && styles.unsupportedText
+                      ]}>
+                        {lang.description}
+                      </Text>
+                      {!lang.isSupported && (
+                        <View style={styles.comingSoonBadge}>
+                          <Ionicons 
+                            name="time-outline" 
+                            size={12} 
+                            color={theme.colors.background} 
+                          />
+                          <Text style={styles.comingSoonText}>Coming Soon</Text>
+                        </View>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                </Animated.View>
+              ))}
+            </View>
+            <View style={styles.versionContainer}>
+              <Text style={styles.versionText}>ANC Version {Constants.expoConfig?.version || '1.0.0'}</Text>
+              <Text style={styles.versionText}>Powered by Wedevelopers Zambia</Text>
+            </View>
           </View>
         </ScrollView>
       </LinearGradient>
@@ -197,13 +204,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: theme.spacing.lg,
+    flexGrow: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    minHeight: '100%',
   },
   languageGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: theme.spacing.md,
+    padding: theme.spacing.lg,
   },
   languageCard: {
     width: CARD_WIDTH,
@@ -286,5 +299,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  versionContainer: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xl,
+    opacity: 0.7,
+    marginTop: 'auto',
+    gap: 5
+  },
+  versionText: {
+    fontSize: 12,
+    color: theme.colors.background,
+    fontWeight: '500',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 }); 

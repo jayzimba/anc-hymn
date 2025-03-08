@@ -171,7 +171,7 @@ export default function HymnsList() {
           <Ionicons 
             name="search" 
             size={20} 
-            color={isDarkMode ? theme.colors.primary : theme.colors.primary} 
+            color={isDarkMode ? theme.colors.accent : theme.colors.accent} 
             style={styles.searchIcon}
           />
           <TextInput
@@ -192,7 +192,7 @@ export default function HymnsList() {
               <Ionicons 
                 name="close-circle" 
                 size={20} 
-                color={isDarkMode ? theme.colors.primary : theme.colors.primary} 
+                color={isDarkMode ? theme.colors.accent : theme.colors.primary} 
               />
             </TouchableOpacity>
           )}
@@ -202,7 +202,7 @@ export default function HymnsList() {
             styles.favoritesButton,
             { 
               backgroundColor: isDarkMode ? '#111111' : theme.colors.background,
-              borderColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.primary + '30'
+              borderColor: isDarkMode ? theme.colors.primary + '40' : theme.colors.accent + '30'
             }
           ]}
           onPress={() => router.push(`/hymns/${language}/favorites`)}
@@ -211,7 +211,7 @@ export default function HymnsList() {
           <Ionicons 
             name="heart" 
             size={24} 
-            color={theme.colors.primary} 
+            color={theme.colors.accent} 
           />
         </TouchableOpacity>
       </View>
