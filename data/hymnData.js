@@ -2251,10 +2251,111 @@ umusunge asuke ayitwe,
 3 Tutalosya awakundwe witu, walinyoka po
 Klistu wakwiza: na kanonzi
 akusansamusya! Wakulosya, akuti, zevyanji.` },
-    { id: 141, title: 'Izewezyo mu Eden, pa winga wakwe Eve', number: '141', content: `` },
-    { id: 177, title: 'Izina lyanona nkani', number: '177', content: `` },
-    { id: 183, title: 'E Yesu wankunda', number: '183', content: `` },
-    { id: 228, title: 'Izwi lyako, Leza', number: '228', content: `` },
+    { id: 131, title: 'Njavwa nene', number: '131', content: `1 Njavwa nene, leza m’kulu, Ukupita mu nsi moo;
+Natonta, uli na maka; Ndema ni kasa lyako:
+Ndela nene, ndela nene Pano ncili nu wumi.
+
+2. Leka ndole icifula ca wazi wakwe yesu;
+Lek’ iwingo liwanjavwa, Ni cenje uwusiku;
+
+3. We wamaka, we wamaka, Uwambomesya nene.
+Pano inkulond’ ukufwa, Utiny’ intete zyane
+Wewe wayilusya imfwa, Undamvisye kwe
+wewe:
+Nkulumbula, nkulumbula, na malumbo
+mazima.` },
+    { id: 132, title: 'Mwemwe wana wa mfumu', number: '132', content: `
+        1. Mwemwe wana wa mfumu, aleni, yimbilanji; Na
+pa kuya mwi yulu mwize muwazewela.
+
+2. Tukupita mwitu kuno watata waya,
+Kanonzi wakuzevya, naswe tuliwazevya.
+
+3. Namwe pundililani, mulipuza pa ndulu;
+‘wufumu ni vilambu vikutulindilila.
+
+4. Mwe wana wa kuswepa punamilan' akaya;
+Kuno tuliwawa pe tulilola e tata.
+
+5. Wanji mwe, mutatina pa kusya ivya munsi;
+E yesu e katula akuti. “zanji mwensi.”
+
+6.Tata, tukusecela pa kusya ivya mu nsi kakolelela
+witu, leka tuwakukonka.
+` },
+    { id: 133, title: '‘kulila kutupu kutanga kunkomole', number: '133', content: `1. Kulila kutupu kutanga kunkomole.
+Nant’ akufumy’ intete ni mfinzi nu ku yimba
+vitanga visile
+
+E yesu wamfwizile
+Pa muti wucingane. Wafwile ku kuntula ku
+mfwa ya muyaya
+
+2. ‘milimo mitupu itanga inkomole, itanga
+nswefy’ umwenzo, nant’ amapepo yane,
+ntanga ‘mbe ne mwengu.
+
+3. ‘kwikala kutupu kutanga kunkomole. Ndi
+nkulayizya wowo, ntanga njize intulwe ku
+luwembu lwane.
+
+4. ‘suwilo litupu ‘lino lingankomola, yesu
+unjavwe nene ku kusuwila vyonsi vino
+wancitila.` },
+    { id: 134, title: 'Yesu tum’ u m’zimu', number: '134', content: `1. Yesu tum' u m'zimu, Wusambilizye awantu.
+
+2. Swenji tukulila, Uwatufwila inkumbu.
+
+3. Kasunga wa wantu, tusungange Swe wawembu.
+
+4. Yesu tum' umulilo, Wize woce iviwipe
+
+5. Mwana wakwe leza, lala watupoka sweswe
+
+6. Kalela wa wantu, lelanga uwufyo wako.` },
+    { id: 135, title: 'We Leza uli ni nkumbu', number: '135', content: `1. We leza uli ni nkumbu Ukansunga nene,
+Nenji nasowa nkani nye, Mu lukundo lwako.
+
+2. Pano indi mu matamyo Wewe ukandola.
+Ukanjavwa pano ntani Nkulilile wewe.
+
+3. Ntanga mbazye ivyawila, Vino ukumpanga.
+Ukufuma ku wucece, Kufika ni lelo.
+
+4. Pano ncili ne mutici, Napitanga mwalwe
+
+A wewe nye wansunganga, Nafika ku wuntu.
+
+5. Mu kufwa na mu wuyimvi, Wand' ukansayila,
+Mwe vyonsi ivya kutinya, Ukantek' umwezo.
+
+6. Ku kulwala kwane konsi A wew' ukampozya. Na
+mu luwembu lwane nye, A wew' unkatusya.
+
+7. Vyawila vyako vyavula Vis' a vya kuwazya,
+Inkakusalifya wewe, Ku wuzima wako.
+
+8. Pano indi mu mipamba Ntandi nkulacile,
+Nandi mbakulumbulisya, Mbacindika wewe.` },
+    { id: 136, title: 'Muvwanjilanji’ e Yesu', number: '136', content: `1. Muvwanjilanj' e yesu! Mwe vita vyakwe nye,
+Tumpulan' indembela mutayilovya mwe.
+Wand' awakolelela imisika yakwe, Asuke
+awacimvye awe mfumu wenga.
+
+2. Muvwanjilanj' e yesu yitawakalwanji na
+walwani, vino akuwita mwe wonsiwonsi
+yanji, mukawalwisyange mutawa ni cipafi,
+muwawa ni nsimpo.
+
+3. Muvwanjilanj' e yesu, mutayisuwila, ye
+mwandi muwanyatwa, na wantu wonsi nye.
+Lindilanj' ukupepa, muwamulolela, akala
+kuno leza wawatuma ‘muya.
+
+4. Muvwanjilanj' e yesu! Isumo lyalowa mu nsi
+a mwakulwa pe, mwi yulu mutende. Wino
+wakunda yesu akumuwelesya, aliwa nu
+wufumu, wuno wusisila.` }
   ],
   // Add other languages here as they become available
   bembe: [],
