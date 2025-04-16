@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { initDatabase } from '../utils/database';
+import DailyVerse from './components/DailyVerse';
 
 function RootLayoutNav() {
   const { isDarkMode } = useTheme();
@@ -20,6 +21,7 @@ function RootLayoutNav() {
         }}
       />
       <StatusBar style={isDarkMode ? "light" : "dark"} />
+      <DailyVerse />
     </View>
   );
 }

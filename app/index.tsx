@@ -1,3 +1,4 @@
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ScrollView, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '../constants/theme';
@@ -151,7 +152,7 @@ export default function LanguageSelection() {
             </View>
             <View style={styles.versionContainer}>
               <Text style={styles.versionText}>ANC Version {Constants.expoConfig?.version || '1.0.0'}</Text>
-              <Text style={styles.versionText}>Powered by Wedevelopers Zambia</Text>
+              <Text style={styles.versionText}>Powered by Lampsync Technologies Zambia</Text>
             </View>
           </View>
         </ScrollView>
