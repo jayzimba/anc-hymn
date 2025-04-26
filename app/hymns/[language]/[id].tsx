@@ -318,7 +318,6 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: theme.spacing.lg,
     paddingTop: theme.spacing.xl,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.primary + '20',
@@ -329,6 +328,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     marginLeft: theme.spacing.md,
+    paddingVertical: Platform.OS === 'android' ? theme.spacing.md : 0,
   },
   hymnNumber: {
     fontSize: 25,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   hymnTitle: {
-    fontSize: 22,
+    fontSize: 20,
     color: theme.colors.primary,
     fontWeight: '700',
   },

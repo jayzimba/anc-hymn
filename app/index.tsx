@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ScrollView, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '../constants/theme';
@@ -8,6 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import * as Haptics from 'expo-haptics';
 import Constants from 'expo-constants';
+import UpdateModal from './components/UpdateModal';
+import * as Updates from 'expo-updates';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - theme.spacing.lg * 3) / 2;
@@ -22,7 +24,7 @@ const languages = [
     icon: 'book',
   },
   {
-    id: 'bembe',
+    id: 'bemba',
     name: 'BEMBA',
     description: 'Hymns in Bemba',
     isSupported: false,
@@ -47,6 +49,25 @@ const languages = [
 export default function LanguageSelection() {
   const router = useRouter();
   const { isDarkMode, toggleTheme } = useTheme();
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [latestVersion, setLatestVersion] = useState('');
+
+  useEffect(() => {
+    checkForUpdates();
+  }, []);
+
+  const checkForUpdates = async () => {
+    try {
+      const update = await Updates.checkForUpdateAsync();
+      if (update.isAvailable) {
+        const currentVersion = Constants.expoConfig?.version || '1.0.0';
+        setLatestVersion(currentVersion);
+        setShowUpdateModal(true);
+      }
+    } catch (error) {
+      console.error('Error checking for updates:', error);
+    }
+  };
 
   const handleLanguageSelect = (languageId: string) => {
     router.push(`/hymns/${languageId}`);
@@ -151,12 +172,17 @@ export default function LanguageSelection() {
               ))}
             </View>
             <View style={styles.versionContainer}>
-              <Text style={styles.versionText}>ANC Version {Constants.expoConfig?.version || '1.0.0'}</Text>
-              <Text style={styles.versionText}>Powered by Lampsync Technologies Zambia</Text>
+              <Text style={styles.versionText}>Version {Constants.expoConfig?.version || '1.0.0'}</Text>
+              <Text style={styles.versionText}>© {new Date().getFullYear()} Africa National Church</Text> 
             </View>
           </View>
         </ScrollView>
       </LinearGradient>
+      <UpdateModal 
+        isVisible={showUpdateModal}
+        onClose={() => setShowUpdateModal(false)}
+        version={latestVersion}
+      />
     </SafeAreaView>
   );
 }
@@ -178,28 +204,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   headerContent: {
     alignItems: 'flex-start',
+    flex: 1,
   },
   title: {
-    fontSize: 32,
+    fontSize: 25,
     color: theme.colors.background,
-    fontWeight: '700',
+    fontWeight: '800',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
     marginBottom: theme.spacing.xs,
+    letterSpacing: 0.5,
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: 16,
     color: theme.colors.background,
     opacity: 0.9,
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
-    fontWeight: '600',
+    fontWeight: '500',
     fontStyle: 'italic',
+    letterSpacing: 0.3,
   },
   scrollView: {
     flex: 1,
@@ -222,18 +253,21 @@ const styles = StyleSheet.create({
   languageCard: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    backgroundColor: theme.colors.background,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.md,
-    elevation: 2,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    overflow: 'hidden',
   },
   unsupportedCard: {
-    opacity: 0.8,
-    backgroundColor: theme.colors.background + 'CC',
+    opacity: 0.7,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -242,28 +276,32 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
   iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: theme.colors.backgroundDark,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.primary + '30',
   },
   languageContent: {
     flex: 1,
     justifyContent: 'center',
   },
   languageName: {
-    fontSize: 16,
+    fontSize: 14,
     color: theme.colors.text,
     fontWeight: '700',
     marginBottom: theme.spacing.xs,
+    letterSpacing: 0.3,
   },
   languageDescription: {
-    fontSize: 12,
+    fontSize: 13,
     color: theme.colors.textLight,
     fontWeight: '500',
     marginBottom: theme.spacing.xs,
+    lineHeight: 18,
   },
   unsupportedText: {
     color: theme.colors.textLight + 'CC',
@@ -276,30 +314,39 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.xs,
     borderRadius: theme.borderRadius.sm,
     alignSelf: 'flex-start',
+    marginTop: theme.spacing.xs,
   },
   comingSoonText: {
     color: theme.colors.background,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
     marginLeft: theme.spacing.xs,
+    letterSpacing: 0.2,
   },
   arrowContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: theme.colors.backgroundDark,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  themeToggle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: theme.colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: theme.colors.primary + '30',
+  },
+  themeToggle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   versionContainer: {
     width: '100%',

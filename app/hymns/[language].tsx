@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, Dimensions, SafeAreaView, StatusBar, RefreshControl } from 'react-native';
+import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, Dimensions, SafeAreaView, StatusBar, RefreshControl, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +10,7 @@ import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
-const SUPPORTED_LANGUAGES = ['cinamwanga', 'bembe', 'cewa', 'tumbaka'];
+const SUPPORTED_LANGUAGES = ['cinamwanga', 'bemba', 'cewa', 'tumbaka'];
 
 export default function HymnsList() {
   const { language } = useLocalSearchParams();
@@ -304,15 +304,16 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flex: 1,
+    paddingVertical: Platform.OS === 'android' ? theme.spacing.lg : 0,
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     color: theme.colors.primary,
     fontWeight: '700',
     marginBottom: theme.spacing.xs,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 14,
     color: theme.colors.primary,
     opacity: 0.8,
     fontWeight: '600',

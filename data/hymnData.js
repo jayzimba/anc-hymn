@@ -2358,7 +2358,7 @@ wakunda yesu akumuwelesya, aliwa nu
 wufumu, wuno wusisila.` }
   ],
   // Add other languages here as they become available
-  bembe: [],
+  bemba: [],
   cewa: [],
   tumbaka: [],
 };
