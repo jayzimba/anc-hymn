@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, SafeAreaView, Animated, NativeSyntheticEvent, NativeScrollEvent, Platform, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Animated, NativeSyntheticEvent, NativeScrollEvent, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '../../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { getHymnById, getHymnContent, getHymnsForLanguage } from '../../../data/
 import { useTheme } from '../../../context/ThemeContext';
 import { addFavoriteHymn, removeFavoriteHymn, isHymnFavorite } from '../../../utils/database';
 import * as Haptics from 'expo-haptics';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HymnContent() {
   const { language, id } = useLocalSearchParams();
@@ -318,7 +319,6 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: theme.spacing.xl,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.primary + '20',
   },
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     marginLeft: theme.spacing.md,
-    paddingVertical: Platform.OS === 'android' ? theme.spacing.md : 0,
+    paddingVertical: Platform.OS === 'android' ? 0 : 0,
   },
   hymnNumber: {
     fontSize: 25,

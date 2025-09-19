@@ -66,6 +66,9 @@ export default function LanguageSelection() {
       }
     } catch (error) {
       console.error('Error checking for updates:', error);
+      // For testing in development - uncomment the line below to test the modal
+      // setLatestVersion('2.0.0');
+      // setShowUpdateModal(true);
     }
   };
 
@@ -82,7 +85,11 @@ export default function LanguageSelection() {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.primary }]}>
       <StatusBar barStyle="light-content" />
       <LinearGradient
-        colors={[
+        colors={isDarkMode ? [
+          '#1a1a1a',
+          '#2d2d2d',
+          '#000000',
+        ] : [
           theme.colors.primary,
           '#2E7D32',
           '#1B4D3E',
@@ -121,37 +128,47 @@ export default function LanguageSelection() {
                   <TouchableOpacity
                     style={[
                       styles.languageCard,
-                      !lang.isSupported && styles.unsupportedCard
+                      isDarkMode && styles.darkCard,
+                      !lang.isSupported && styles.unsupportedCard,
+                      !lang.isSupported && isDarkMode && styles.darkUnsupportedCard
                     ]}
                     onPress={() => handleLanguageSelect(lang.id)}
                     activeOpacity={0.7}
                     disabled={!lang.isSupported}
                   >
                     <View style={styles.cardHeader}>
-                      <View style={styles.iconContainer}>
+                      <View style={[
+                        styles.iconContainer,
+                        isDarkMode && styles.darkIconContainer
+                      ]}>
                         <Ionicons 
                           name={lang.icon as any} 
                           size={24} 
-                          color={lang.isSupported ? theme.colors.primary : theme.colors.textLight + '80'} 
+                          color={lang.isSupported ? (isDarkMode ? theme.colors.primary : theme.colors.primary) : (isDarkMode ? '#666666' : theme.colors.textLight + '80')} 
                         />
                       </View>
-                      <View style={styles.arrowContainer}>
+                      <View style={[
+                        styles.arrowContainer,
+                        isDarkMode && styles.darkArrowContainer
+                      ]}>
                         <Ionicons 
                           name={lang.isSupported ? "chevron-forward" : "lock-closed"} 
                           size={20} 
-                          color={lang.isSupported ? theme.colors.primary : theme.colors.textLight + '80'} 
+                          color={lang.isSupported ? (isDarkMode ? theme.colors.primary : theme.colors.primary) : (isDarkMode ? '#666666' : theme.colors.textLight + '80')} 
                         />
                       </View>
                     </View>
                     <View style={styles.languageContent}>
                       <Text style={[
                         styles.languageName,
+                        isDarkMode && styles.darkText,
                         !lang.isSupported && styles.unsupportedText
                       ]}>
                         {lang.name}
                       </Text>
                       <Text style={[
                         styles.languageDescription,
+                        isDarkMode && styles.darkTextLight,
                         !lang.isSupported && styles.unsupportedText
                       ]}>
                         {lang.description}
@@ -194,7 +211,7 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     width: '100%',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 40,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
 
   },
   header: {
@@ -363,5 +380,28 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+  },
+  // Dark mode styles
+  darkCard: {
+    backgroundColor: 'rgba(40, 40, 40, 0.95)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  darkUnsupportedCard: {
+    backgroundColor: 'rgba(30, 30, 30, 0.85)',
+    opacity: 0.6,
+  },
+  darkText: {
+    color: '#ffffff',
+  },
+  darkTextLight: {
+    color: '#cccccc',
+  },
+  darkIconContainer: {
+    backgroundColor: '#ffffff',
+    borderColor: theme.colors.primary + '30',
+  },
+  darkArrowContainer: {
+    backgroundColor: '#ffffff',
+    borderColor: theme.colors.primary + '30',
   },
 }); 

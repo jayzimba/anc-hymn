@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, Dimensions, SafeAreaView, StatusBar, RefreshControl, Platform } from 'react-native';
+import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, Dimensions, StatusBar, RefreshControl, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getHymnsForLanguage, searchHymns } from '../../data/hymnData';
 import { useTheme } from '../../context/ThemeContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -279,7 +280,6 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: theme.colors.background,
     padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.primary + '20',
     flexDirection: 'row',
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flex: 1,
-    paddingVertical: Platform.OS === 'android' ? theme.spacing.lg : 0,
+    paddingVertical: Platform.OS === 'android' ? 0 : 0,
   },
   title: {
     fontSize: 20,

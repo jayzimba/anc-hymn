@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, SafeAreaView, RefreshControl, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, RefreshControl, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '../../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { getFavoriteHymns, FavoriteHymn } from '../../../utils/database';
 import { useTheme } from '../../../context/ThemeContext';
 import { useIsFocused } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const getLanguageDisplay = (language: string): string => {
   const languages = {
@@ -205,7 +206,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
     borderBottomWidth: 1,
   },
   backButton: {
